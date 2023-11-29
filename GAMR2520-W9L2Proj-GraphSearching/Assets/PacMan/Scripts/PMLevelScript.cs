@@ -383,8 +383,22 @@ I - bottom right corner
             }
         }
 
+        int j = goalNode;
 
-        ///Complete path function
+        //while parent node is not = -1 (set as parent of the root node)
+        do
+        {
+            //add j node into path list
+            path.Add(j);
+            
+            if (parentNode[j] == 0)
+            {
+                break;
+            }
+            //j now equals the parent of current j
+            j = parentNode[j];
+        }
+        while (j != -1);
 
 
         searchingPath = false;
