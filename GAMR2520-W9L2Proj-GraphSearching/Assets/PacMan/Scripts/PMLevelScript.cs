@@ -385,7 +385,6 @@ I - bottom right corner
 
         int j = goalNode;
 
-        //while parent node is not = -1 (set as parent of the root node)
         do
         {
             //add j node into path list

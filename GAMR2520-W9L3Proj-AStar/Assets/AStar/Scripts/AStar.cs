@@ -161,7 +161,7 @@ public class AStar : MonoBehaviour
 
 
 
-        
+
 
         //Get the root node and set it to rootNode
         Node rootNode = NodePositionInGrid(rootNodePos);
@@ -173,17 +173,19 @@ public class AStar : MonoBehaviour
         openSet = new List<Node>();
 
         //Create a new List<Node> set for closed nodes
-        closedSet = new List<Node>(); 
+        closedSet = new List<Node>();
 
         //has path been found? 
         pathFound = false;
 
+        searching = true;
         //add root node to the open set
         openSet.Add(rootNode);
 
         //create a current node variable
-        Node currentNode = rootNode;
+        currentNode = new Node(Vector3.zero, false, -1, -1); ;
 
+        float newMoveCost;
 
         ////// IGNORE - UI STUFF /////
         if (!rootNode.traversable || !goalNode.traversable)
@@ -223,10 +225,10 @@ public class AStar : MonoBehaviour
                 for (int i = 1; i < openSet.Count; i++)
                 {
                     //if the node has less fCost than the current node, or the same but less Hcost
-                    if (openSet[i].f < currentNode.f || ((openSet[i].f == currentNode.f) && openSet[i].h < currentNode.h)) 
-                        {
+                    if (openSet[i].f < currentNode.f || (openSet[i].f == currentNode.f && openSet[i].h < currentNode.h))
+                    {
                         currentNode = openSet[i];
-                        }
+                    }
 
 
                 }
@@ -250,6 +252,7 @@ public class AStar : MonoBehaviour
                     //////////////  IGNORE - UI STUFF////////////////////////////
                     startStopSearchButton.gameObject.transform.Find("Text").GetComponent<Text>().text = "Start";
                     ///////////////////////////////////////////////////
+                    break;
                 }
                 else
                 {
@@ -257,21 +260,27 @@ public class AStar : MonoBehaviour
                     foreach (Node neighbour in GetNeighbours(currentNode))
                     {
                         //if we cannot traverse to the neighbour, or is in the close set
-                        if(!neighbour.traversable || closedSet.Contains(neighbour))
+                        if (!neighbour.traversable || closedSet.Contains(neighbour))
                         {
                             //skip this loop
                             continue;
                         }
 
                         //Calculate the move to neightbor gCost using Hueristic (use getdistance)
-                        float newMoveCost = GetDistance(currentNode, neighbour) + currentNode.g;
+                        newMoveCost = GetDistance(currentNode, neighbour) + currentNode.g;
 
                         //if the new move costs less or this neighbour isnt in the open set
-                        if(newMoveCost < neighbour.g || openSet.Contains(neighbour))
+                        if (newMoveCost < neighbour.g || !openSet.Contains(neighbour))
                         {
+
                             //store (new) move cost
-                            //store heuristic to goalNode
-                            //store parent
+                            neighbour.g = newMoveCost;
+
+                            //store heuristic hCost from neighbour to goal
+                            neighbour.h = GetDistance(neighbour, goalNode);
+
+                            //store parent node for path retrace
+                            neighbour.parentNode = currentNode;
 
                             //if we dont have this neighbour in the open set
                             if (!openSet.Contains(neighbour))
@@ -297,6 +306,7 @@ public class AStar : MonoBehaviour
         }
         searching = false;
     }
+
 
     void RetracePath(Node rNode, Node gNode)
     {
